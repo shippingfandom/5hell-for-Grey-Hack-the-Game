@@ -21,21 +21,20 @@
 //
 ////////////////////////////////               OPTIONAL SECURITY SECTION            //////////////////////
 // //////////////////////////////              YOUR SECURITY GOES HERE              //////////////////////
-// ///// customize this line fully (with something more advanced) for the most security      ////////
-//   access_codes = {"Alpha":"your password here", "Beta":"your other password here if you want"}
-//   // if you rename access_codes be sure to edit the below line
-//   rnac = access_codes.indexes
-//   rnac.shuffle
-//   rnac = rnac.pop
-//   if user_input("<color=#00FFFFFF><b>Cyberdeck Authentication Code [<color=#FFFFFFFF><b>"+rnac+"</color>]: ",1,0) != access_codes[rnac] then
-//     wait(300)
+// /////      IF using security: customize the below line fully and UNCOMMENT the next ten (10) lines     //////// 
+//   access_codes = {"Alpha":"your password here", "Beta":"your other password here if you want"} 
+//   rnac = access_codes.indexes   // if you rename access_codes be sure to edit the this line to match                                                
+//   rnac.shuffle                                                                                 
+//   rnac = rnac.pop                                                                              
+//   if user_input("<color=#00FFFFFF><b>Cyberdeck Authentication Code [<color=#FFFFFFFF><b>"+rnac+"</color>]: ",1,0) != access_codes[rnac] then    
+//     wait(300)                                                                                 
 //     exit("frag off, chumba")
 //   else 
 //     access_codes = null
 //   end if
+//                       /////////////////          END SECURITY       ///////////////////
 ///////// ALWAYS USE A PASSWORD (SECURITY SECTION ABOVE) WHEN SETTING AN @HOME_SERVER PASSWORD and/or decryption keys  !!!!! ////////////////////////////////
 //
-//                                          /////////////////END SECURITY///////////////////
 // //////////////MAP OPTION////////////////
 // uncomment only ONE of the 'command =' lines. At least one must be selected.
 // option {} == normal 5hell mode. default.
