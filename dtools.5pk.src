@@ -1,4 +1,4 @@
-if DEBUG then print("<size=75%>loading dtools.5pk v 4.3.5..(158.780)")
+if DEBUG then print("<size=75%>loading dtools.5pk v 4.3.6...(158.053)")
 
 command.cob = function(arg1,arg2,arg3=0,arg4=0)
 	cy = colorCyan 
@@ -1580,28 +1580,9 @@ command.file = function(arg1, arg2=0, arg3=0, arg4=0)
 			if DEBUG then print arg1
 			ts = time
 			if not arg1 or arg1.len < 1 then return "file: nothing to encrypt"
-			indnt = "<size=75%>-- "
-			// re-cursed code follows
-			encrypt_path = function(ec_files,indnt,act,pw)
-				if globals.DEBUG then print "debug: ec_files: "+ec_files
-				for fl in ec_files
-					if not fl.is_folder then 
-						c = false
-						pth = fl.path
-						print indnt+act+"ing </color>"+pth
-						if act == colorMagenta+"</b>encrypt" then // can't @crypto[act] -- Sadge :[
-							c = globals.crypto.encrypt(pth,pw)
-						else
-							c = globals.crypto.decrypt(pth,pw)
-						end if
-						if c == true then print indnt+"</b>"+act+"ion<b> successful" else print indnt+"</b>"+act+"ion"+colorWarning+" failed!"+char(10)+indnt+colorWarning+"</b>"+c 
-					else 
-						encrypt_path(fl.get_folders,indnt,act,pw)
-					end if
-				end for
-			end function
+			indnt = "<size=75%>-- "			
 			if typeof(arg1) != "list" then arg1 = [arg1]
-			encrypt_path(arg1,indnt,act,pw)
+			globals.en_de_crypt_path(arg1,indnt,act,pw)
 			et = str(time - ts)
 			return "<size=75%>file: "+act+"ion complete in [<b>"+et+"</b>] seconds"+char(10)
 		end if
@@ -1682,7 +1663,7 @@ command.file = function(arg1, arg2=0, arg3=0, arg4=0)
 			return crypt_stat
 		end if
 		if return_size == true then 
-			//print "file: returning file size..."
+			print "file: returning file size..."
 			return arg1.size
 		end if
 		if return_parent then 
