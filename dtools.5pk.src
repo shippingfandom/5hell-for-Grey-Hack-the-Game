@@ -1,4 +1,4 @@
-if DEBUG then print("<size=75%>loading dtools.5pk v 4.3.6...(158.053)")
+if DEBUG then print("<size=75%>loading dtools.5pk v 4.3.6...(158.054)")
 
 command.cob = function(arg1,arg2,arg3=0,arg4=0)
 	cy = colorCyan 
@@ -1582,7 +1582,7 @@ command.file = function(arg1, arg2=0, arg3=0, arg4=0)
 			if not arg1 or arg1.len < 1 then return "file: nothing to encrypt"
 			indnt = "<size=75%>-- "			
 			if typeof(arg1) != "list" then arg1 = [arg1]
-			globals.en_de_crypt_path(arg1,indnt,act,pw)
+			globals.en_de_crypt_files(arg1,indnt,act,pw)
 			et = str(time - ts)
 			return "<size=75%>file: "+act+"ion complete in [<b>"+et+"</b>] seconds"+char(10)
 		end if
