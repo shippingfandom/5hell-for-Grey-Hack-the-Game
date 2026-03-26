@@ -31,6 +31,18 @@
 ////
 //// To Done:
 //
+// cd: rewritten in order to fix some bugs
+// -- will no longer stop working when the current path doesn't exist
+// checkUser: rfile was set to /root instead of /
+// -- resulting in a false 'guest' user return when /root is missing
+// -- it will now properly check perms on / 
+// file: exported encrypt_path to 5phinx.5pk to make it a shared funciton
+// -- changed name to: en_de_crypt_path
+// ---- since the function both encrypts and decrypts depending on the action passed (act)
+// kraken: will properly handle encrypted files when adding/deleting a repo
+// zc: zerochill will now properly display usage info when asked
+// rsi: update rsi -i|install usage info
+//
 // kraken: will immediately re-encrypt Map.conf after reading it
 // kraken: will accept a map_key as a final argument for all modes
 // -- except for when opening the kraken menu
@@ -45,7 +57,7 @@
 // kore: --control will automatically run hashim -d in parallel with it
 // -- if kore --control detects a change to the 'pass' file used by hashim, it will invoke it
 // --note: unlike socket_in/_out behavior, hashim calls will not be created as a job
-// -- logging integration soon(tm)
+// -- hashim tasks will be logged like everything else
 // kore: fixed crash caused by typo: cahr
 // transmit: moved from globals space in 5phinx.5pk to command.transmit in kore.5pk
 // transmit: will now accept -w as a wait flag
