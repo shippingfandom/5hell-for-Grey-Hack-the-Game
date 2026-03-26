@@ -1,4 +1,4 @@
-1if DEBUG then print("<size=75%>loading net.5pk v 4.3.5.1...(153.502)")
+if DEBUG then print("<size=75%>loading net.5pk v 4.3.6...(153.748)")
 
 command.target = function(arg1, arg2, arg3=0, arg4=0)
 	if arg1 == "-h" or arg1 == "help" then return "Target || Target IP || Target Port"+char(10)+"Usage: target -- return current target ip and port"+char(10)+"Usage: target ip -- returns current target ip"+char(10)+"Usage: target pt -- return current target port"+char(10)+"Usage: target [ip] -- set target ip address (ip must be a valid ip)"+char(10)+"Usage: target -p [port] -- set target port (returns target port if not supplied)"+char(10)+"Usage: target [ip] [port] -- set targt ip and port in a single command"+char(10)+char(10)+"Note: target ip and port are used by 5phinx, transmit, meta, db, probe, and others."
@@ -104,7 +104,11 @@ command.rsi = function(arg1, arg2, arg3=0, arg4=0)
 	colorCyan+"</b>Usage: rsi ["+colorRed+"</b>-n|-N"+CT+"] -- nuke all rshells"+char(10)+
 	"-- [<b>-n</b>] -- uses silentclean -n"+char(10)+
 	"-- [<b>-N</b>] -- uses rclean -n"+char(10)+
-	colorGold+"</b>Usage: rsi [<b>-i</b>|install] -- installs the reverse shell server if librshell.so is on the machine"+char(10)+
+	colorGold+"</b>Usage: rsi [<b>-i</b>|install] -- installs the reverse shell server "+char(10)+
+	"-- requires librshell.so"+char(10)+
+	"---- if not present, rsi will use aptm to download it using aptm"+char(10)+
+	"---- a hackshop repository is necessary to download librshell.so"+char(10)+
+	"---- use<b> rnip [number of ips to try] | porter 1542</b> to find one"+char(10)+
 	"Usage: rsi [<b>start</b>|<b>stop</b>] -- start or stop the installed rshell server"+char(10)+
 	colorOrange+"</b>Usage: rsi --export -- return the entire rshell buffer as a list"+char(10)+
 	"-- usage example: |> <b>rsi --export | enum -a | enum -b"+char(10)+
