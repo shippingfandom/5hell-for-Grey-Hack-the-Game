@@ -2,14 +2,14 @@
 // released v 4.3.1
 // imports .5pk files from /root/src
 // globals
-ver = "4.3.5_falling_skies"
+ver = "4.3.6_falling_skies"
 //print ver
 if not globals.hasIndex("DEBUG") then globals.DEBUG = false // set to true by launching 5hell with --debug as any parameter
 if globals.hasIndex("params") and globals.params.indexOf("--debug") >= 0 then 
 	globals.DEBUG = true
 	globals.params.remove(globals.params.indexOf("--debug"))
 end if
-size_of_5hell = "142.532"
+size_of_5hell = "144.577"
 globals.SILENT = 0 // 0 == normal, 2 == silent, 1 == clear_screen
 if DEBUG then print("<size=75%>loading globals...</size>") else print("<align=center><mark=red><color=black>#</color></mark></align>")
 //
@@ -646,52 +646,94 @@ command.ls = function(arg1, arg2, arg3=0, arg4=0)
 	output = output.split(char(10))
 	return format_columns(output.join(char(10)).trim)
 end function
-command.cd = function(arg1, arg2, arg3=0, arg4=0)
-	if arg1 == "help" or arg1 == "-h" then return "Usage: cd [path] -- change current working directory to path"+char(10)+
-	"Usage: cd .. -- go back to parent directory."+char(10)+
-	"Usage: cd -- return to home directory."+char(10)+
-	"Returns: returns string on failure; empty string on success"
 
+command.cd = function(arg1,arg2,arg3,arg4)
+	if arg1 == "help" or arg1 == "-h" then return "Usage: <b>cd [path|file_object]</b> -- change current working directory to path"+char(10)+
+	"Usage: <b>cd ..</b> -- go back to parent directory."+char(10)+
+	"Usage: <b>cd</b> -- return to home directory."+char(10)+
+	"note: all modes return string on failure; <b>null</b> on success"
+
+	if arg1 and typeof(arg1) != "string" and typeof(arg1) != "file" then return "cd: invalid input; expects string or file_object"
+	if DEBUG then print "debug: cd:"+char(10)+"-- currentPath: "+currentPath+char(10)+"-- current_path: "+current_path
+	new_path = get_file("/")
+	if not globals.get_file(globals.currentPath) then globals.currentPath = "/"
 	if arg1 == "" then arg1 = 0
-	if not globals.get_file(globals.currentPath) then 
-		globals.currentPath = home_dir
-		if globals.GLASSPOOL then return
-		return cd(globals.currentPath)
-	end if
-	chd = localmachine.File(globals.currentPath)
-	if not arg1 then
-		globals.currentPath = globals.homePath
-		if globals.GLASSPOOL then return
-		return cd(globals.currentPath)
-	end if
-	if not chd then
-		globals.currentPath = "/"
-		print "cd: path error; setting current path to<b> / </b>"+char(10)+"...please try again"
-		if globals.GLASSPOOL then return
-		return cd(globals.currentPath)
-	end if
-	if arg1 == ".." then
-		if chd.name != "/" then
-			globals.currentPath = chd.parent.path
-			if globals.GLASSPOOL then return
-			return cd(globals.currentPath)
-		end if
-		return null
-	end if
-	new_path = globals.get_file(arg1)
-	if new_path then
-		if new_path.is_folder then
-			globals.currentPath = new_path.path 
-			if globals.GLASSPOOL then return
-			return cd(globals.currentPath)
+	if not arg1 then 
+		if GLASSPOOL then
+			new_path = "/"+checkUser(localmachine)
+			if new_path != "/root" then new_path = "/home"+new_path
+			arg1 = new_path
+			new_path = get_file(new_path)
 		else
-			return "cd: "+new_path.path+" is not a directory"
+			arg1 = home_dir
+			new_path = get_file(arg1)
 		end if
+	else if arg1 == ".." then
+		new_path = get_file(currentPath)
+		if new_path and new_path.path != "/" then new_path = new_path.parent 
 	else
-		return "cd: "+arg1+" not found."
+		new_path = get_file(arg1) // handles strings and file objects
 	end if
-	return null
+	if typeof(new_path) != "file" then
+		res = "cd: "+arg1+" not found"
+		if arg1 then return res
+		print res+char(10)+"-- defaulting to <b>/"
+		new_path = get_file("/")
+	end if
+	if not new_path.is_folder then return "cd: "+new_path.path+" is not a directory"
+	new_path = new_path.path
+
+	globals.currentPath = new_path
+	if GLASSPOOL then return
+	return cd(globals.currentPath)
 end function
+
+// command.cd = function(arg1, arg2, arg3=0, arg4=0)
+// 	if arg1 == "help" or arg1 == "-h" then return "Usage: cd [path] -- change current working directory to path"+char(10)+
+// 	"Usage: cd .. -- go back to parent directory."+char(10)+
+// 	"Usage: cd -- return to home directory."+char(10)+
+// 	"Returns: returns string on failure; empty string on success"
+
+// 	if arg1 == "" then arg1 = 0
+// 	if not globals.get_file(globals.currentPath) then
+// 		globals.currentPath = home_dir
+// 		if globals.GLASSPOOL then return
+// 		return cd(globals.currentPath)
+// 	end if
+// 	chd = localmachine.File(globals.currentPath)
+// 	if not arg1 then
+// 		globals.currentPath = globals.homePath
+// 		if globals.GLASSPOOL then return
+// 		return cd(globals.currentPath)
+// 	end if
+// 	if not chd then
+// 		globals.currentPath = "/"
+// 		print "cd: path error; setting current path to<b> / </b>"+char(10)+"...please try again"
+// 		if globals.GLASSPOOL then return
+// 		return cd(globals.currentPath)
+// 	end if
+// 	if arg1 == ".." then
+// 		if chd.name != "/" then
+// 			globals.currentPath = chd.parent.path
+// 			if globals.GLASSPOOL then return
+// 			return cd(globals.currentPath)
+// 		end if
+// 		return null
+// 	end if
+// 	new_path = globals.get_file(arg1)
+// 	if new_path then
+// 		if new_path.is_folder then
+// 			globals.currentPath = new_path.path 
+// 			if globals.GLASSPOOL then return
+// 			return cd(globals.currentPath)
+// 		else
+// 			return "cd: "+new_path.path+" is not a directory"
+// 		end if
+// 	else
+// 		return "cd: "+arg1+" not found."
+// 	end if
+// 	return null
+// end function
 command.rm = function(arg1, arg2, arg3=0, arg4=0)
 	if arg1 == 0 or arg1 == "-h" or arg1 == "help" then return "<b><u>Remove File || RM || Delete</b></u> "+char(10)+"Usage: rm [opt:-r] [path|file_object] [opt:shell|computer]"+char(10)+"Usage: rm [path|file_object] - deletes a file"+char(10)+"Usage: rm -r [path|file_object] - deletes a folder (and all contents)"+char(10)+"Usage: rm [opt:-r] [/absolute/path] [shell_object|computer_object]"+char(10)+"-- uses supplied shell or computer to delete file or folder at path"+char(10)+char(10)+"N.B. The system.log delete entry will be from the originating IP"+char(10)+"-- NOT the ip of the remote shell or computer"+char(10)+"-- be sure to clean the log when remote deleting"
 	path_to_delete = null
@@ -2802,16 +2844,18 @@ command.credits = function(arg1, arg2, arg3=0, arg4=0)
 	print("CheckUser function by: "+colorWhite+"Corvus"+CT)
 	print("Blackjack card art by: "+colorWhite+"3nigma"+CT)
 	print("Pwgen by : "+colorWhite+" UsesPython, additions by Plu70 "+CT)
-	print("Glosure by: "+colorWhite+"Maho_citrus")
+	print("Glosure by: "+colorWhite+"Maho_citrus, "+colorLightBlue+"<u>https://github.com/mahocitrus/Glosure")
+	print("Marinette extension by: "+colorWhite+"Hecate, "+colorLightBlue+"<u>https://github.com/shippingfandom/Marinette")
 	print("Glosure-5hell lambda support: "+colorWhite+"Hecate")
 	print("Htop by: "+colorWhite+"redit0")
 	print("TWS by: "+colorWhite+"Aksu")
-	print("Additional code contributions by: "+colorWhite+"Clover, Redit0, Muhahahahe, Maho_citrus*, Aksu, Notepid, CyanMatter, Jamestonic, Hecate")
+	print("Original tree code by "+colorWhite+"Darkie"+CT+", additions by Plu70")
+	print("Additional code contributions by: "+colorWhite+"Clover, Redit0, Muhahahahe, Maho_citrus, Aksu, Notepid, CyanMatter, Jamestonic, Hecate")
 	print("Github Readme by: "+colorWhite+"Hikaru918")
 	print("5hell Discord and Daemon Manager by: "+colorWhite+"Redit0")
 	print("5hell.src optimizations by: "+colorWhite+"Clover")
 	print("Beta testing by: "+colorWhite+"CypherRaven, Deckard, KotyKD, Silent, Wulf, Amanda, Sabranan")
-	return "Inspiration from: "+char(10)+colorWhite+"AweTux, Kirin, Rasputin, Haro, CypherRaven, 3nigma, muhahahahe, Arcane, Sl3ekr, Notepid, bakeneko, Jamestonic, Slat3r, Swep, GSQ, blujoker, Lady, KotyKD, Corvus, Amanda, virus, DHZA, Silent, Conner, STYX, Fear_Rua, 0x0, Aksu, Penelope, Andreno, Minidevil96, Tyy, Sabranan, CyanMatter, MrMember, Clover, Maho_Citrus, Trashed, Bit, IDelta, Minus, OmegaKawaii, Hikaru918, Notepid, Xagic, Omega, Redit0, Eclipse00, Jessa, Forteyn, Hecate, Nyx "+char(10)+"and many others! Maybe even you, one day!"
+	return "Inspiration from: "+char(10)+colorWhite+"AweTux, Kirin, Rasputin, Haro, CypherRaven, 3nigma, muhahahahe, Arcane, Sl3ekr, Notepid, bakeneko, Jamestonic, Slat3r, Swep, GSQ, blujoker, Bit, Lady, KotyKD, Corvus, Amanda, virus, DHZA, Silent, Conner, STYX, Fear_Rua, 0x0, Aksu, Penelope, Andreno, Minidevil96, Tyy, Sabranan, CyanMatter, MrMember, Clover, Maho_Citrus, Trashed, IDelta, Minus, OmegaKawaii, Hikaru918, Notepid, Xagic, Omega, Redit0, Eclipse00, Jessa, Forteyn, Hecate, Nyx "+char(10)+"and many others! Maybe even you, one day!"
 end function
 command.quit = function(state=1, arg2=0, arg3=0, arg4=0) // NOT reboot command, rather ends script
 	if state == "help" or state == "-h" then return "<u>QUIT || EXIT || RETURN</u>"+char(10)+"Usage: quit [opt:state] -- exits the program."+char(10)+"-- if no optional state then prompts before exit"+char(10)+"-- if state supplied then skips confirmation and exits with state"+char(10)+"Usage:<b> exit [opt:state]</b> -- also exits the program with optional state"+char(10)+"Usage: return -- used to return from glasspool. Will exit 5hell if glasspool is inactive."

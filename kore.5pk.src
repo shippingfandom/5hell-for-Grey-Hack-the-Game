@@ -1,4 +1,4 @@
-if DEBUG then print("<size=75%>loading kore.5pk v 4.3.5...(75.130)")
+if DEBUG then print("<size=75%>loading kore.5pk v 4.3.6...(75.254)")
 command.kore = function(arg1,arg2=0,arg3=0,arg4=0)
     time_s = time
     kore_usage_info = "<u>"+colorGold+"KORE 3.0 || automation || helper || Goddess of the DEAD and GRAIN || rkit || security"+char(10)+char(10)+
@@ -142,7 +142,7 @@ command.kore = function(arg1,arg2=0,arg3=0,arg4=0)
 			print kc.cg+"<size=75%>-- "+kc.cw+"</b>outputting to socket_out: <u>"+kc.socket_out.path
 			if kc.spool then 	
 				spool = kc.log_output
-				globals.spoolpath = kc.log_output.path
+				globals.spoolpath = kc.log_output.path // the _print override in 5phinx.5pk uses spoolpath, if set
 				print kc.cg+"<size=75%>--"+kc.cw+" spooling to kore.log: <u>"+kc.log_output.path
 			end if
 			print kc.cg+"<size=75%>-- "+kc.cw+"</b>listening on socket_in: <u>"+kc.socket_in.path+char(10)+kc.cg+"<"+kc.cw+"o</color>>"
@@ -1178,6 +1178,7 @@ command.glasspool = function(arg1,arg2,arg3,arg4)
 					globals.currentPath = "/home/"+uu
 				end if
 			end if
+			if not get_file(currentPath) then globals.currentPath = "/"
 			command.shell(gp_do)
 			// restore previous state
 			globals.shell = hold_shell
