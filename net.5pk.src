@@ -465,7 +465,8 @@ command.ifconfig = function(arg1=0, arg2=0, arg3=0, arg4=0)
 		dat.push(use_comp.network_devices)
 	end if
 
-	if typeof(arg1) == "shell" or typeof(arg1) == "computer" then 
+    // Was it left here by accident? (0.0 )
+	//if typeof(arg1) == "shell" or typeof(arg1) == "computer" then 
 	if arg1 == "-w" or arg1 == "wifi" then 
 		if not arg3 then return "ifconfig: -w expects [essid|bssid] [passykey]"
 		if not use_comp.active_net_card == "WIFI" then return "iwconfig: no active WIFI card"
