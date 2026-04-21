@@ -49,7 +49,7 @@ globals.print = function(msg, mode=0, color=0,outfile=0)
     ifdbg = ""
     //if DEBUG then ifdbg = char(10)+"- - - "+time+" - - - "// hahaha, this would be spam hell
     if typeof(log) == "file" and log.has_permission("w") and log.has_permission("r") then 
-      if msg.len + log.get_content.len < 159000 then 
+      if ( msg.len + log.get_content.len) < 159000 then 
         log.set_content(log.get_content+ifdbg+char(10)+msg) 
       else 
         f = log.name.split("\.")
@@ -63,8 +63,8 @@ globals.print = function(msg, mode=0, color=0,outfile=0)
         newspool = globals.get_file(lpp+"/"+nsp)
         globals.spoolpath = newspool.path
         newspool.set_content(msg)
-        print("print: the log has reached the maximum size;"+char(10)+"-- new log file created:"+char(10)+"--: "+newspool.path,0,2)
-        print command.perms("o-rwx",newspool.path) 
+        _print("print: the log has reached the maximum size;"+char(10)+"-- new log file created:"+char(10)+"--: "+newspool.path,0,2)
+        _print command.perms("o-rwx",newspool.path) 
       end if
     else 
       _print(colorError+"<size=75%>print: cannot spool: file path or permission error")
@@ -102,7 +102,8 @@ globals._cascade = function()
 end function
 
 Kérberos = function( sl )
-  if typeof(@sl) == "function" then print colorRed+"</b>Kérberos: prevented rogue function execution" else return @sl 
+  if typeof(@sl) == "function" then print colorRed+"</b>Kérberos: prevented rogue function execution" else return @sl
+  return null
 end function
 
 // no longer used, use the daemon manager instead
@@ -381,29 +382,29 @@ end function
 globals._ez_clip = function( in_prompt )
   for e in in_prompt 
     if DEBUG then print("z: "+@e)
-      // reprocess: unpack single quote chunk, process, repackage
+      // reprocess: unpack single quote chunk, process, repackage. strings only.
     if typeof(@e) != "string" then continue
     if e.split(" ").len > 1 then 
-        in_prompt[in_prompt.indexOf(@e)] = _ez_clip(@e.split(" ")).join(" ")
+        in_prompt[in_prompt.indexOf(e)] = _ez_clip(e.split(" ")).join(" ")
         continue
     end if
     // done reprocessing
     // connecting dots
-    if DEBUG then print("p: "+@e)
-    e_indx = in_prompt.indexOf(@e) 
+    if DEBUG then print("p: "+e)
+    e_indx = in_prompt.indexOf(e) 
     //if @e == "@STOP" then in_prompt[e_indx] = @globals.SAFEWORD
-    if @e == "@a" then in_prompt[e_indx] = @globals.CLIP["a"]
-    if @e == "@b" then in_prompt[e_indx] = @globals.CLIP["b"]
-    if @e == "@c" then in_prompt[e_indx] = @globals.CLIP["c"]
-    if @e == "@home" then 
+    if e == "@a" then in_prompt[e_indx] = @globals.CLIP["a"]
+    if e == "@b" then in_prompt[e_indx] = @globals.CLIP["b"]
+    if e == "@c" then in_prompt[e_indx] = @globals.CLIP["c"]
+    if e == "@home" then 
       command.cob("validate")
       in_prompt[e_indx] = @get_custom_object.HOME.ip
     end if
-    if @e == "@tbuf" then in_prompt[e_indx] = @globals.T_BUF.join(char(10))
-    if @e == "@t" then in_prompt[e_indx] = @globals.targetIP 
-    if @e == "@p" then in_prompt[e_indx] = @str(globals.targetPort)
-    if @e == "@r" then // moar ats! moarats! moar rats!... wait... no, no more rats
-      if in_prompt.hasIndex(e_indx+1) and typeof(in_prompt[e_indx+1]) == "string" then 
+    if e == "@tbuf" then in_prompt[e_indx] = @globals.T_BUF.join(char(10))
+    if e == "@t" then in_prompt[e_indx] = @globals.targetIP 
+    if e == "@p" then in_prompt[e_indx] = @str(globals.targetPort)
+    if e == "@r" then // moar ats! moarats! moar rats!... wait... no, no more rats
+      if in_prompt.hasIndex(e_indx+1) and typeof(@in_prompt[e_indx+1]) == "string" then 
         ind = in_prompt[e_indx+1]
         if ind == "-m" then ind = 0
         tsh = command.rsi("-r",ind)
@@ -417,22 +418,24 @@ globals._ez_clip = function( in_prompt )
         print globals.colorWarning+"<size=75%></b>ezclip: rsi: invalid index"
       end if
     end if
-    if @e == "@o" then
-      if in_prompt.hasIndex(e_indx+1) then//and typeof(in_prompt[e_indx+1]) == "string" and get_custom_object.hasIndex(in_prompt[e_indx+1]) then 
-          get = command.cob("get",in_prompt[e_indx+1])
-          if get != "cob: key not found" then
-            in_prompt[e_indx+1] = command.cob("get",in_prompt[e_indx+1])
-            in_prompt.remove(e_indx)
-          end if
+    if e == "@o" then
+      if in_prompt.hasIndex(e_indx+1) then 
+        print command.cob("get",in_prompt[e_indx+1])
+        if command.cob("get",in_prompt[e_indx+1]) != "cob: key not found" then
+          print "<b>beep boop motherfucker!"
+          in_prompt[e_indx+1] = command.cob("get",in_prompt[e_indx+1])
+          in_prompt.remove(e_indx)
+        end if
       else 
           print globals.colorWarning+"<size=75%></b>ez_clip: cob: key not found"
       end if
+      //continue
     end if
-    if @e == "@B" then 
+    if e == "@B" then 
       b_err = globals.colorWarning+"@BUFFER: invalid selection"
       if in_prompt.hasIndex(e_indx+1) then 
         if DEBUG then print "e_indx: "+e_indx
-        if in_prompt[e_indx+1] == "-m" then 
+        if @in_prompt[e_indx+1] == "-m" then 
           if BUFFER.len == 0 then
             print(globals.colorOrange+"\nBuffer empty. ")
             continue
@@ -470,9 +473,9 @@ globals._ez_clip = function( in_prompt )
               print b_err
           end if
         else
-          if typeof(in_prompt[e_indx+1]) == "string" then 
+          if typeof(@in_prompt[e_indx+1]) == "string" then 
             if globals.BUFFER.hasIndex(in_prompt[e_indx+1].to_int) then 
-                in_prompt[e_indx+1] = @globals.BUFFER[in_prompt[e_indx+1].to_int]
+                in_prompt[e_indx+1] = globals.BUFFER[@in_prompt[e_indx+1].to_int]
                 in_prompt.remove(e_indx)
                 if DEBUG then print "post non menu in_prompt"
             else 
@@ -485,20 +488,20 @@ globals._ez_clip = function( in_prompt )
     // dots connected
     // process escapes
     // hi clover, if you see this, feel free to make it magic
-    if @e == "\@STOP" then in_prompt[e_indx] = "@STOP"
-    if @e == "\@a" then in_prompt[e_indx] = "@a"
-    if @e == "\@b" then in_prompt[e_indx] = "@b"
-    if @e == "\@c" then in_prompt[e_indx] = "@c"
-    if @e == "\""" then in_prompt[e_indx] = """"
-    if @e == "\@home" then in_prompt[e_indx] = "@home"
-    if @e == "\@tbuf" then in_prompt[e_indx] = "@tbuf"
-    if @e == "\@t" then in_prompt[e_indx] = "@t"
-    if @e == "\@p" then in_prompt[e_indx] = "@p"
-    if @e == "\@o" then in_prompt[e_indx] = "@o"
-    if @e == "\@B" then in_prompt[e_indx] = "@B"
-    if @e == "\@r" then in_prompt[e_indx] = "@r"
+    if e == "\@STOP" then in_prompt[e_indx] = "@STOP"
+    if e == "\@a" then in_prompt[e_indx] = "@a"
+    if e == "\@b" then in_prompt[e_indx] = "@b"
+    if e == "\@c" then in_prompt[e_indx] = "@c"
+    if e == "\""" then in_prompt[e_indx] = """"
+    if e == "\@home" then in_prompt[e_indx] = "@home"
+    if e == "\@tbuf" then in_prompt[e_indx] = "@tbuf"
+    if e == "\@t" then in_prompt[e_indx] = "@t"
+    if e == "\@p" then in_prompt[e_indx] = "@p"
+    if e == "\@o" then in_prompt[e_indx] = "@o"
+    if e == "\@B" then in_prompt[e_indx] = "@B"
+    if e == "\@r" then in_prompt[e_indx] = "@r"
     //if @e == "\@pipe" then in_prompt[e_indx] = "@pipe"
-    if DEBUG then print("b: "+ in_prompt[e_indx])
+    if DEBUG then print("b: "+ @in_prompt[e_indx])
     // escapes processed
   end for
   if DEBUG then print "ezclip: returning: "+in_prompt
@@ -581,7 +584,7 @@ string.noparse = function(self)
 end function
 
 // slightly less garbage code than before follows, somehow works
-globals.decompiler = function(o)
+globals.decompiler = function(o,args=0)
     act = "Decompiling"
     if typeof(@o) == "function" then act = "Evaluating"
     if typeof(@o) == "custom_object" then act = "Expanding"
@@ -602,7 +605,7 @@ globals.decompiler = function(o)
     end if
 
     if typeof(@o) == "function" then
-        return p_exe(@o)
+        return p_exe(@o,null,args)
     end if
 
     if typeof(o) == "number" then return "code: cannot decompile a number"
@@ -634,12 +637,22 @@ globals.decompiler = function(o)
             i = i + 1
         end for 
         i = i - 1
-        if DEBUG then print("debug: i: "+i+" methods: "+methods.len)
-        print(colorWhite+"<u>======================</u>"+CT)
-        pr = user_input("Select a function to execute (q=quit):> ").to_int
+        if DEBUG then print "debug: i: "+i+" methods: "+methods.len
+        print colorWhite+"<u>======================</u>"+char(10)+"<b>code: select a method:> "
+
+        pr = null
+        if typeof(args) == "string" then 
+          args = args.split(" ")
+          pr = args[0]
+          args = args[1:]
+        end if
+        if DEBUG then print "<b>debug: pr: </b>"+pr+", <b>args: </b>"+args
+        if not pr then pr = user_input("Select a function to execute (q=quit):> ").to_int
+
         if pr == "q" or pr == "" or pr == " " then return "aborting..." 
+        if methods.indexOf(pr) != null then pr = methods.indexOf(pr)
         rcv = null
-        if pr >= 0 and pr <= i then rcv = globals.p_exe( o , methods[pr]) else return 0
+        if pr >= 0 and pr <= i then rcv = globals.p_exe( o , methods[pr], args) else return "code: index not found"
         if DEBUG then print "rcv: "+rcv
         if rcv then 
             globals.BUFFER.push(rcv)
@@ -651,46 +664,47 @@ globals.decompiler = function(o)
     if typeof(o) == "list" then 
         cw = colorWhite+"</b>"
         cb = colorLightBlue+"</b>"
+        print "<u>"+cw+"ndx"+cb+" : "+cw+"element"
         for d in o
-        print "<u>"+cw+"ndx"+cb+":"+cw+"element"
-        print "["+cw+o.indexOf(d)+CT+"]"+cw+":"+CT+"["+d+"]"
+          print cw+o.indexOf(d)+CT+cw+" : "+CT+"["+d+"]"
         end for
-        print cb+"["+cw+"1</color>] enumerate "+cb+"["+cw+"2</color>] to cob "+cb+"["+cw+"3</color>] to buffer"+char(10)
+        print char(10)+colorGreen+"- - - - - - - - - - - - - -"
+        print cb+"["+cw+"e</color>] enumerate "+cb+"["+cw+"o</color>] to cob "+cb+"["+cw+"x</color>] buffer index"
         print cb+"["+cw+"a</color>] to clipa "+cb+"["+cw+"b</color>] to clipb "+cb+"["+cw+"c</color>]> to clipc"
-        choice = user_input("||: ",0,1)
-        if choice == "1" and command.hasIndex("enum") then 
-          return command.enum(o) 
-        else 
-          globals.enumerated = o 
-          return o 
-        end if
-        if choice == "2" then 
+        print cb+"["+cw+"#</color>] return item at index (single digit)"
+        print cb+"["+cw+"i</color>] prompt for index of item to return (multi digit)"
+        if args then choice = args else choice = user_input("||: ",0,1)
+        if choice == "i" then choice = user_input(colorWhite+"code: select an index:> "+colorLightBlue)
+        if choice.to_int >= 0 and choice.to_int < o.len then return o[choice.to_int]
+        if choice == "e" then return command.enum(o) 
+        if choice == "o" then 
             set_key = user_input("set_key (<b>enter</b>=quit):> ")
             if set_key == "" then print "aborting..."
             return command.cob("set", set_key, o)
         end if
-        if choice == "3" then 
-            tb = user_input("select an index:> ").to_int
+        if choice == "x" then 
+            tb = user_input("list: select an index to send to the BUFFER"+char(10)+":> ").to_int
             if tb < o.len and tb >= 0 then  
-                print "sending element to "+colorOrange+"BUFFER..."
+                print "-- sending element to "+colorOrange+"BUFFER..."
                 globals.BUFFER.push(o[tb])
             else
-                print "invalid index; aborting..."
+                print "-- invalid index; aborting..."
             end if
         end if
         if choice == "a" then return command.clipa(o)
         if choice == "b" then return command.clipb(o)
         if choice == "c" then return command.clipc(o)
+        print "aborting..."
         return 0
     end if
-    out = []
+    out = ""
     for d in o
         out.push(d+char(10))
     end for
-    return 0
+    return o // out
 end function
 
-globals.p_exe = function( obj, f_name=null ) // obj is either game object or function
+globals.p_exe = function( obj, f_name=null, arguments=null ) // obj is either game object or function
   if DEBUG then print("debug: In P_EXE: "+@obj+": "+f_name)
   if typeof(@obj) != "function" and not p_validate(obj, f_name) then return "p_exe: invalid input; expects object or function"
   foo = @obj 
@@ -725,13 +739,15 @@ globals.p_exe = function( obj, f_name=null ) // obj is either game object or fun
             a.push(self_param)
             continue
         end if
-        a.push(obj)
+        a.push(@obj)
         continue 
     end if
     def = ar.split("=")
     if def.len > 1 then def = def[1].trim else def = """"
-
-    inp = user_input("(Use [@a|@b|@c] for the clipboard"+char(10)+"-- ints are cast as ints, use 'int' to cast as string"+char(10)+"<b>enter="+def+"</b>, null=null,  q=quit)"+char(10)+colorLightBlue+"Supply argument for: "+colorWhite+ ar +CT+char(10)+"</b>:> ")
+    inp = null
+    if DEBUG then print "<b>debug: arguments: "+@arguments
+    if typeof(arguments) ==  "list" and arguments.len > 0 then inp = arguments.pull
+    if not @inp then inp = user_input("(Use [@a|@b|@c] for the clipboard"+char(10)+"-- ints are cast as ints, use 'int' to cast as string"+char(10)+"<b>enter="+def+"</b>, null=null,  q=quit)"+char(10)+colorLightBlue+"Supply argument for: "+colorWhite+ ar +CT+char(10)+"</b>:> ")
     if @inp == "q" then return "aborting..."
     if @inp == "" then inp = def
     if @inp == "null" then inp = null
@@ -773,7 +789,7 @@ p_validate = function( o, query=null )
   if test == null then return 0
   if not query then
     if DEBUG then print "debug: no query"
-    o_type = typeof(o) 
+    o_type = typeof(@o) 
     switch(o_type)
     // this uh... doesn't actually do anything....
       if DEBUG then print "debug: switch: start"
@@ -794,15 +810,15 @@ p_validate = function( o, query=null )
       case("debugLibrary",@p_validate(o,"scan"))
       if DEBUG then print "debug: switch: firing default"
     v = default(1)
-    return v
+    return @v
   end if
   if DEBUG then print "debug: query: "+query
   if @o.hasIndex("__isa") and typeof(@o) != "string" then
-    if DEBUG then print colorGreen+"__isa indexes found: "+o.__isa.indexes.len
-    q = o.__isa.hasIndex(query)
+    if DEBUG then print colorGreen+"__isa indexes found: "+@o.__isa.indexes.len
+    q = @o.__isa.hasIndex(query)
     if DEBUG then print "result: "+q
 	  if typeof(@o) == "file" then // hack to make this work for files. testing needed to see if other objects have somethign like this
-      if o.name then return q else return 0
+      if @o.name then return q else return 0
     end if
     return q // does the object have the index we seek?
   else 
@@ -985,20 +1001,6 @@ globals.rsi_purge = function(ktar="ALL")
   for r in rshells
     print colorLightBlue+"rsi: kill "+colorCyan+ktar+"</color> >> "+colorWhite+r.host_computer.public_ip+ " @ "+r.host_computer.local_ip
     print command.kill(ktar,r)
-
-    // processes = r.host_computer.show_procs.split(char(10))
-    // for p in processes
-    //   if p == "USER PID CPU MEM COMMAND" then continue
-    //   process = p.split(" ")
-    //   process_ID = process[1]
-    //   process_CMD = process[4]
-    //   if process_CMD != exclude then 
-    //     print "Killing: "+process_CMD+" ID: "+process_ID
-    //     print r.host_computer.close_program(process_ID.to_int)
-    //   else 
-    //     print "rsi: excluding "+exclude+" from purge..."
-    //   end if
-    // end for
   end for
   return 0
 end function
@@ -3204,13 +3206,13 @@ end function
 load_lib = function(lib_path)
   if DEBUG then print "load_lib_path: "+lib_path
   if lib_path.len < 1 then return "aborting..."
-  print "meta: clearing metaLib and net_session..."
+  print colorGold+"meta: clearing metaLib and net_session..."
   globals.metaLib = null 
   globals.net_session = null // clear out net_session since we are working with a local lib
   new_lib = metaxploit.load(lib_path)
   if not new_lib then new_lib = metaxploit.load("/lib/"+lib_path)
   if new_lib then
-    print "metaLib: linking "+colorLightBlue+new_lib.lib_name+"<color=blue> v </color>"+new_lib.version+char(10)
+    print "metaLib: linking "+colorLightBlue+new_lib.lib_name+colorDarkBlue+" v </color>"+new_lib.version+char(10)
     globals.metaLib = new_lib
   else
     print colorOrange+"load_lib: file not found or not a library "
