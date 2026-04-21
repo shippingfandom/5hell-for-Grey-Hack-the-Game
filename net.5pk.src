@@ -454,10 +454,14 @@ command.ifconfig = function(arg1=0, arg2=0, arg3=0, arg4=0)
 	globals.pubip = globals.localmachine.public_ip
 	use_comp = globals.localmachine
 
-	if typeof(arg1) == "shell" or typeof(arg1) == "computer" or typeof(arg2) == "shell" or typeof(arg2) == "computer" then
-		use_comp = arg2
-		if typeof(arg2) == "shell" then use_comp == arg2.host_computer
+	if typeof(arg1) == "shell" or typeof(arg1) == "computer" then 
+		if typeof(use_comp) == "shell" then use_comp == use_comp.host_computer else use_comp = arg1
 	end if
+	
+	if typeof(arg2) == "shell" or typeof(arg2) == "computer" then
+		if typeof(arg2) == "shell" then use_comp == arg2.host_computer else use_comp = arg2
+	end if
+
 	if arg1 == "-l" or arg1 == "local" or arg2 == "-l" or arg2 == "local" then dat.push(localip)// ?? #whyemoji.gif
 	if arg1 == "-p" or arg1 == "public" or arg2 == "-p" or arg2 == "public" then dat.push(pubip)// ??
 	if arg1 == "-d" or arg2 == "-d" or arg1 == "devices" or arg2 == "devices" then// ??
@@ -465,7 +469,6 @@ command.ifconfig = function(arg1=0, arg2=0, arg3=0, arg4=0)
 		dat.push(use_comp.network_devices)
 	end if
 
-    // Was it left here by accident? (0.0 )
 	//if typeof(arg1) == "shell" or typeof(arg1) == "computer" then 
 	if arg1 == "-w" or arg1 == "wifi" then 
 		if not arg3 then return "ifconfig: -w expects [essid|bssid] [passykey]"
@@ -933,27 +936,36 @@ command.nsl = function(arg1, arg2, arg3=0, arg4=0)
 	return addy.trim
 end function
 command.ping = function(arg1, arg2=0, arg3=0, arg4=0)
-	if not arg1 or arg1 == "-h" or arg1 == "help" then return command_info("ping_usage")+char(10)+"Note: returns a string."
+	if not arg1 or arg1 == "-h" or arg1 == "help" then return "Usage: ping [ip] [opt:shell] -- send a ping request to the given ip"+char(10)+
+	"-- does not leave a log"+char(10)+
+	"-- returns string with round-trip time"+char(10)+
+	"-- passing a shell object will initiate the ping from the given object"+char(10)+
+	"NOTE: the game does not simulate round-trip time;"+char(10)+
+	"-- round trip time actually measures code-execution time"+char(10)+
+	"-- possibly useful for measuring the game server's latency"
 	if not localmachine.is_network_active then return "ping: no network connection."
 	if not is_valid_ip(arg1) then return command_info("ping_usage")
 	time_s = time
+	hold = globals.shell
+	if typeof(arg2) == "shell" then globals.shell = arg2
 	catch = shell.ping(arg1)
+	globals.shell = hold
 	time_e = ( (time - time_s) * 1000 )
 	if DEBUG then print("catch: "+catch)
 	if catch == true then
 		if typeof(catch) == "string" then
 			return catch
 		else
-			print(colorLightBlue+"Ping "+colorWhite+arg1+"</color>: successful"+CT)
+			print(colorLightBlue+"ping "+colorWhite+arg1+"</color>: successful"+CT)
 			color_time = colorOrange
 			if time_e < .03 then color_time = colorGreen
 			if time_e > .1 then color_time = colorRed
-			return colorLightBlue+"Ping: packet round trip: "+CT+color_time+time_e+CT+colorLightBlue+" ms."+CT
+			return colorLightBlue+"ping: packet round trip: "+CT+color_time+time_e+CT+colorLightBlue+" ms."+CT
 		end if
 	else
 		return colorRed+"ping: "+arg1+" unreachable."
 	end if
-	return 0
+	return null
 end function
 command.whois = function(arg1, arg2, arg3=0, arg4=0)
 	if arg1 == "-h" or arg1 == "help" then return "WHOIS || whois information || network info"+char(10)+
@@ -2360,13 +2372,13 @@ command.meta = function(arg1, arg2, arg3=0, arg4=0)
 				globals.metaLib = arg2
 				print colorLightBlue+"</b><size=75%>meta: loaded new <b>MetaLib</b> object:"
 				ldb = command.linkdb(arg2.lib_name+" v "+arg2.version,"-y")
-				if ldb then print ldb+char(10)+"meta: returning..."
+				if ldb then print ldb+char(10)+"meta: returning..." else return colorRed+"meta: unkown error; please report to Plu70!"
 				return globals.metaLib
 			end if
 			arg = "L"
 			scan_this_lib = arg2
 			ldb = command.linkdb(get_lib(arg,scan_this_lib),"-y") //else return "meta: invalid metaLib"// edit get_lib to take 3rd param: auto link
-			if ldb then print ldb+char(10)+"meta: returning..."
+			print ldb+char(10)+"meta: returning..." 
 			return globals.metaLib
 		end if
 	
@@ -2387,7 +2399,7 @@ command.meta = function(arg1, arg2, arg3=0, arg4=0)
 	
 	end if
 	
-	if not globals.metaxploit then print "meta: metaxploit.so not found" 
+	if not globals.metaxploit then return colorRed+"meta: metaxploit.so not found" 
 	if typeof(globals.metaLib) == "MetaLib" then return globals.metaLib.lib_name + " v " +globals.metaLib.version
 	return "meta: no MetaLib linked"
 	
@@ -2649,7 +2661,9 @@ command.aptm = function(arg1, arg2, arg3=0, arg4=0) // requires aptclient.so
 		case("-d", @apt.del_repo)
 		case("-s", @apt.search)
 		case("--hotswap", @apt.hot_swap)
-	default( @paf )
+	//default( @paf )
+	// experimental
+	if "-u-i-a-d-s--hotswap".indexOf(arg1) != null then return default(@paf) else default(@paf)
 	
 	//apting = true
 	while apting
@@ -2669,7 +2683,7 @@ command.aptm = function(arg1, arg2, arg3=0, arg4=0) // requires aptclient.so
 		print("_____________________________________________")
 		print
 	end while
-	return 0
+	return null
 end function
 command.smtp = function(arg1,arg2=0,arg3=0,arg4=0)
 	if arg1 == "help" or arg1 == "-h" then return "SMTP || MAIL USER LIST"+char(10)+"Usage: smtp [ip] [port] -- return mail user list if ip/port is running smtp mail server"+char(10)+"-- user target ip and target port if not supplied"
