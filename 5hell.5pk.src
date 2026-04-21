@@ -2,7 +2,7 @@
 // released v 4.3.1
 // imports .5pk files from /root/src
 // globals
-ver = "4.3.6_falling_skies"
+ver = "4.3.6.3_falling_skies"
 //print ver
 if not globals.hasIndex("DEBUG") then globals.DEBUG = false // set to true by launching 5hell with --debug as any parameter
 if globals.hasIndex("params") and globals.params.indexOf("--debug") >= 0 then 
@@ -600,7 +600,20 @@ command.ls = function(arg1, arg2, arg3=0, arg4=0)
 	folder = globals.get_file(folderPath)
 	if not folder then return "ls: No such file or directory"
 	if DEBUG then print("folder: "+folder.path+" is a: "+typeof(folder))
-	if folder.is_folder then 
+	output = ""
+	if folder.is_folder then
+		line_color = colorLightBlue+"</b>"
+		nameFile = folder.name
+		permission = folder.permissions
+		owner = folder.owner
+		size = folder.size
+		group = folder.group
+		is_bin = folder.is_binary
+		// if showDetails then
+		// 	output = output + char(10) + line_color + permission + " " + owner + " " + group + " "+ size + " bin["+is_bin+"] " + nameFile + char(10) + colorLightBlue+"|"
+		// else
+		// 	output = output + char(10) + line_color + nameFile + char(10) + colorLightBlue+"|"
+		// end if
 		subFiles = folder.get_folders + folder.get_files
 		if DEBUG then print "debug: pre alpha sort"
 		if a_order then 
@@ -622,7 +635,7 @@ command.ls = function(arg1, arg2, arg3=0, arg4=0)
 	else 
 		subFiles = [folder]
 	end if
-	output = ""
+	//output = ""
 	for subFile in subFiles
 		line_color = colorWhite+"</b>"
 		nameFile = subFile.name
@@ -2743,7 +2756,7 @@ command.purge = function(arg1, arg2, arg3=0, arg4=0)
 		return p.done(l)
 	end function
 	p.t4s = function()
-		l = "Tagged 3 SCP"
+		l = "Tagged 4 SCP"
 		if not p.confirm(l) then return p.a
 		globals.tagged_for_scp = ""
 		return p.done(l)
