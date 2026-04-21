@@ -172,8 +172,8 @@ command.cob = function(arg1,arg2,arg3=0,arg4=0)
 	end function
 	cob._inspectible = function(tmpc)
 		if DEBUG then print "is_inspectibible: "+@tmpc
-		if typeof(@tmpc) == "function" or typeof(tmpc) == "number" or typeof(tmpc) == "string" then return 0
-		if typeof(tmpc) == "list" or typeof(tmpc) == "map" then return 1
+		if typeof(@tmpc) == "function" or typeof(@tmpc) == "number" or typeof(@tmpc) == "string" then return 0
+		if typeof(@tmpc) == "list" or typeof(@tmpc) == "map" then return 1
 		if not tmpc then return 0
 		if tmpc.hasIndex("classID") then return 1
 		return 0
@@ -283,14 +283,14 @@ command.cob = function(arg1,arg2,arg3=0,arg4=0)
 		end if
 	end function
 
-	if arg1 == "return" then return cobble
-	if arg1 == "validate" then return cob.validate
-	if arg1 == "reset" then return cob.reset
-	if arg1 == "install" then 
+	if @arg1 == "return" then return cobble
+	if @arg1 == "validate" then return cob.validate
+	if @arg1 == "reset" then return cob.reset
+	if @arg1 == "install" then 
 		if typeof(@arg2) == "string" then return cob.install(arg2) else return "cob: install expects a (string: key) from the custom object"
 	end if
 
-	if arg1 == "set" then
+	if @arg1 == "set" then
 		if not @arg2 then return "cob: index cannot be zero or null"
 		if @arg3 then
 			if @arg2 == "@clipa" then arg2 = @globals.CLIP["a"]
@@ -319,7 +319,7 @@ command.cob = function(arg1,arg2,arg3=0,arg4=0)
 			return "cob: invalid input; <size=75%>use <b>@z</b> for zero and <b>@n</b> for null"+char(10)+"<size=75%>-- escape with \@z, \@n"
 		end if
 	end if
-	if arg1 == "get" or arg1 == "del" then
+	if @arg1 == "get" or @arg1 == "del" then
 		if not @arg2 then return cob.err
 		kl = []
 		rl = []
@@ -335,30 +335,30 @@ command.cob = function(arg1,arg2,arg3=0,arg4=0)
 			rl.push(@got)
 			if cob._inspectible(@rl[-1]) then 
 				last_c = cobble
-				cobble = rl[-1]
+				cobble = @rl[-1]
 			else
 				brok = 1
 				break
 			end if
 		end for
-		if arg1 == "del" then
+		if @arg1 == "del" then
 			if not brok then cobble = last_c
 			return cob.del(@kl[-1])
 		end if
-		return rl[-1]
+		return @rl[-1]
 	end if
-	if arg1 == "push" then return cob._push(@arg2,@arg3)
-	if arg1 == "indexes" then return cob.return_indexes
-	if arg1 == "inspect" then return cob.inspect(@arg2)
-	if arg1 == "sign" then return cob.sign(signature)
-	if arg1 == "search" then
+	if @arg1 == "push" then return cob._push(@arg2,@arg3)
+	if @arg1 == "indexes" then return cob.return_indexes
+	if @arg1 == "inspect" then return cob.inspect(@arg2)
+	if @arg1 == "sign" then return cob.sign(signature)
+	if @arg1 == "search" then
 		if @arg2 then return cob.search( @arg2 ) else return cob.err
 	end if
 	// if arg1 == "del" then
 	// 	if @arg2 == "macros.classID" or arg2 == "HOME.classID" then return "cob: "+arg2+" is a protected value"
 	// 	if @arg2 then return cob.del( @arg2 ) else return cob.err
 	// end if
-	if arg1 == "purge" then return command.purge("-o","y")
+	if @arg1 == "purge" then return command.purge("-o","y")
 	return cob.err
 end function
 command.poke = function(arg1, arg2, arg3=0, arg4=0)
@@ -3180,11 +3180,12 @@ command.code = function(arg1, arg2, arg3=0, arg4=0)
 		if DEBUG then print "debug: code: string buf: "+buf
 		return buf.join(", ")
 	end if
-	if typeof(@arg1) == "shell" or typeof(@arg1) == "ftpshell" or typeof(@arg1) == "file" or typeof(@arg1) == "computer" or typeof(@arg1) == "map" or typeof(@arg1) == "custom_object" or typeof(@arg1) == "list" then return globals.decompiler(@arg1)
-	if typeof(@arg1) == "pshell" or typeof(@arg1) == "pcomputer" or typeof(@arg1) == "pfile" or typeof(@arg1) == "prouter" then return globals.decompiler(@arg1)
-	if @arg1.hasIndex("__isa") then return globals.decompiler(@arg1)
+	if DEBUG then print "<b>debug: preparing to send "+@arg1+" to decompiler with args: "+arg2
+	if typeof(@arg1) == "shell" or typeof(@arg1) == "ftpshell" or typeof(@arg1) == "file" or typeof(@arg1) == "computer" or typeof(@arg1) == "map" or typeof(@arg1) == "custom_object" or typeof(@arg1) == "list" then return globals.decompiler(@arg1,arg2)
+	if typeof(@arg1) == "pshell" or typeof(@arg1) == "pcomputer" or typeof(@arg1) == "pfile" or typeof(@arg1) == "prouter" then return globals.decompiler(@arg1,arg2)
+	if @arg1.hasIndex("__isa") then return globals.decompiler(@arg1,arg2)
 	check = new @arg1 
-	if typeof(@check) == "map" then return globals.decompiler(@arg1)
+	if typeof(@check) == "map" then return globals.decompiler(@arg1,arg2)
 	return "code: unkown type"
 end function
 command.silentclean = function(arg1=0, arg2=0, arg3=0, arg4=0)
