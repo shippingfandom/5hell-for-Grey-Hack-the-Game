@@ -1,4 +1,4 @@
-if DEBUG then print("<size=75%>loading kore.5pk v 4.3.6...(75.254)")
+if DEBUG then print("<size=75%>loading kore.5pk v 4.3.7...(75.839)")
 command.kore = function(arg1,arg2=0,arg3=0,arg4=0)
     time_s = time
     kore_usage_info = "<u>"+colorGold+"KORE 3.0 || automation || helper || Goddess of the DEAD and GRAIN || rkit || security"+char(10)+char(10)+
@@ -1098,7 +1098,7 @@ command.glasspool = function(arg1,arg2,arg3,arg4)
 	if obj == "-m" then 
 		temp_buf = []
 		for b in globals.BUFFER
-			if typeof(b) == "shell" or typeof(b) == "ftpshell" or typeof(b) == "computer" then temp_buf.push(b)
+			if typeof(b) == "shell" or typeof(b) == "ftpshell" or typeof(b) == "computer" or typeof(b) == "ftpComputer" then temp_buf.push(b)
 		end for
 		r_index = temp_buf.len
 		if metaxploit then
@@ -1113,13 +1113,19 @@ command.glasspool = function(arg1,arg2,arg3,arg4)
 		active_icon = "<b> - </b>"
 		for tb in temp_buf
 			if ti >= r_index then color_shelle = colorLightBlue // color rshells blue
-			if typeof(tb) == "shell" or typeof(tb) == "ftpshell" then
+			if typeof(tb) == "shell" then // or typeof(tb) == "ftpshell" then
 				if tb.host_computer.public_ip == globals.shell.host_computer.public_ip and tb.host_computer.local_ip == globals.shell.host_computer.local_ip then active_icon = colorCyan+" * "+CT
 				p_ip = tb.host_computer.public_ip
 				l_ip = tb.host_computer.local_ip
-			else 
+			else if typeof(tb) == "computer" then
 				p_ip = tb.public_ip
 				l_ip = tb.local_ip
+			else if typeof(tb) == "ftpshell" then
+				l_ip = checkUser(tb)
+				p_ip = tb.host_computer.get_name
+			else
+				l_ip = checkUser(tb)
+				p_ip = tb.get_name
 			end if
 			she_buf.push("["+colorWhite+ti+CT+"]"+active_icon+""+color_shelle+"["+checkUser(tb)+":"+typeof(tb)+"] "+CT+l_ip+" @ <b>"+p_ip+"</b>") 
 			active_icon = "<b> - </b>" // reset active icon
@@ -1146,11 +1152,11 @@ command.glasspool = function(arg1,arg2,arg3,arg4)
 		end if
 	end if
 	// check result. file objects are not supported at this time
-	if typeof(obj) != "shell" and typeof(obj) != "computer" then return "glasspool: expects shell or computer"
+	if typeof(obj) != "shell" and typeof(obj) != "computer" then return "glasspool: expects shell or computer" // ftpshells/computers are jank and don't include local and public ip so... no
 	print(colorLightBlue+"<size=75%>Initializing sshfs glasspool protocol..."+CT)
 
 	// -- handle shell
-	if typeof(obj) == "shell" then
+	if typeof(obj) == "shell" then //or typeof(obj) == "ftpshell" then
 		// save current state
 		hold_shell = globals.shell
 		globals.shell = obj
@@ -1165,7 +1171,8 @@ command.glasspool = function(arg1,arg2,arg3,arg4)
 			"<size=75%>---- will execute on the machine attached to the shell object"+char(10)+
 			"<size=75%>-- <b>local/general</b> category commands will execute on the local machine"+char(10)+
 			"<size=75%>-- <b>tab completion</b> does not translate through glasspool"
-			if typeof(globals.shell) == "ftpshell" then print colorOrange+"<size=75%>Warning: ftp shells have limited functionality"
+			if typeof(globals.shell) == "ftpshell" then print colorOrange+"<size=75%>Warning: ftp shells have limited functionality"+char(10)+"-- please report any crashes to Plu70"
+			print
 			// print("Type: <b><u>return</u></b> to deactivate and return. Exit to quit completely.")
 			// switch scope
 			uu = checkUser(globals.shell)
@@ -1186,19 +1193,19 @@ command.glasspool = function(arg1,arg2,arg3,arg4)
 			globals.GLASSPOOL = globals.GLASSPOOL - 1
 			// update path
 			globals.update_path(temp_p)
-			print(colorLightBlue+"<size=75%>glasspool: "+colorOrange+" deactivating..."+CT)
+			print colorLightBlue+"<size=75%>glasspool: "+colorOrange+" deactivating..."
 		else
 			globals.shell = hold_shell
 			globals.localmachine = globals.shell.host_computer
-			print(colorOrange+"<size=75%>glasspool: error: failed to initialize."+CT)
+			print colorOrange+"<size=75%>glasspool: error: failed to initialize."
 		end if
 	end if
 
 	// -- handle computer
-	if typeof(obj) == "computer" then
+	if typeof(obj) == "computer" then //or typeof(obj) == "ftpComputer" then
 		// display info/warning.
 
-		print(colorLightBlue+"<size=75%>glasspool: initializing glass puddle computer handler...")+CT
+		print colorLightBlue+"<size=75%>glasspool: initializing glass puddle computer handler..."
 		// save current state
 		tem_c = globals.localmachine
 		globals.localmachine = obj
@@ -1209,7 +1216,9 @@ command.glasspool = function(arg1,arg2,arg3,arg4)
 			colorOrange+"<size=75%>glasspool: computer mirroring:"+char(10)+
 			"<size=75%>-- <color=yellow>computer</color>, and <color=yellow>file</color> commands"+char(10)+
 			"<size=75%>---- will execute on the machine connected to the computer object"+char(10)+
-			"<size=75%>-- <color=yellow>shell</color> and <b>local/general commands</b> will execute on the local machine"+char(10)
+			"<size=75%>-- <color=yellow>shell</color> and <b>local/general commands</b> will execute on the local machine"
+			if typeof(globals.shell) == "ftpshell" then print colorOrange+"<size=75%>Warning: ftp shells have limited functionality"+char(10)+"-- please report any crashes to Plu70"
+			print
 			// switch scope
 			uu = checkUser(globals.localmachine)
 			if DEBUG then print "debug: uu: "+uu
@@ -1228,10 +1237,10 @@ command.glasspool = function(arg1,arg2,arg3,arg4)
 			// update path
 			globals.update_path(temp_p)
 			globals.GLASSPOOL = globals.GLASSPOOL - 1
-			print(colorLightBlue+"GLASS_PUDDLE: "+colorOrange+" deactivating..."+CT)
+			print colorLightBlue+"GLASS_PUDDLE: "+colorOrange+" deactivating..."
 		else 
 			globals.localmachine = tem_c
-			print(colorOrange+"glasspool: error: failed to initialize."+CT)
+			print colorOrange+"glasspool: error: failed to initialize."
 		end if
 	end if
 	return 0
@@ -1285,16 +1294,16 @@ command.outmon = function(arg1,interval=2, act=0, react=0)
 	    //skip
 	  else
 	    last_read = out_space.get_content
-		print(colorWhite+"daemon: "+daemon+CT)
-	    print(colorGreen+"///////////////////////////////////////"+CT)
-	    print(last_read)
-	    print(colorGreen+"///////////////////////////////////////"+CT)
+		print colorWhite+"daemon: "+daemon
+	    print colorGreen+"///////////////////////////////////////"
+	    print last_read
+	    print colorGreen+"///////////////////////////////////////"
 		if act == 1 then manager.Stop(daemon)
 		if act == 2 then print command.do("1",last_read)
 		if act == 3 then print command.do("1",react)
-		print(colorWhite+"Listening on :"+out_space.path+" for connections..."+CT)
+		print colorWhite+"Listening on :"+out_space.path+" for connections..."
 	  end if
-	  wait(interval)
+	  wait interval
 	end while
 	return 0
 end function
