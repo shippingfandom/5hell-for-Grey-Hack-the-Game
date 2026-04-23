@@ -2,14 +2,14 @@
 // released v 4.3.1
 // imports .5pk files from /root/src
 // globals
-ver = "4.3.6.3_falling_skies"
+ver = "4.3.7_falling_skies"
 //print ver
 if not globals.hasIndex("DEBUG") then globals.DEBUG = false // set to true by launching 5hell with --debug as any parameter
 if globals.hasIndex("params") and globals.params.indexOf("--debug") >= 0 then 
 	globals.DEBUG = true
 	globals.params.remove(globals.params.indexOf("--debug"))
 end if
-size_of_5hell = "144.577"
+size_of_5hell = "145.164"
 globals.SILENT = 0 // 0 == normal, 2 == silent, 1 == clear_screen
 if DEBUG then print("<size=75%>loading globals...</size>") else print("<align=center><mark=red><color=black>#</color></mark></align>")
 //
@@ -1917,7 +1917,7 @@ command.rclean = function(arg1, arg2=0, arg3=0, arg4=0)
 	end if
 	//if not arg1 then arg1 = globals.shell
 	if DEBUG then print ("<b>in rclean: obj: "+typeof(@arg1)+" opt: "+@arg2)
-	if arg1 and (typeof(arg1) == "shell" or typeof(arg1) == "ftpshell" or typeof(arg1) == "computer" or typeof(arg1) == "file") then return globals.rclean(arg1,arg2)
+	if arg1 and (typeof(arg1) == "shell" or typeof(arg1) == "ftpshell" or typeof(arg1) == "computer" or typeof(arg1) == "file" or typeof(arg1) == "ftpComputer" or typeof(arg1) == "ftpFile") then return globals.rclean(arg1,arg2)
 	//if arg1 and typeof(arg1.to_int) == "number" then return globals.rclean(command.clipb("@B",arg1),arg2)
 	if arg1 and typeof(arg1.to_int) == "number" then return globals.rclean( globals._ez_clip(["@B",arg1]), arg2)
 	//return globals.rclean(command.clipb("@B","-m"),arg2)
@@ -1928,7 +1928,7 @@ command.ipfit = function(arg1, arg2, arg3=0, arg4=0)
 	if arg1 == "help" or arg1 == "-h" then return "Usage: ipfit -- menu to specify a way to generate ips. (wip)"+char(10)+"Recommendation: pipe the output to a file or to the clipboard."+char(10)+"e.g<b> ipfit | clipb </b>, or<b> ipfit | poke iplist </b>"
 	print("Configuring: ")
 	print("<b>How do you want to specify ip's? </b>"+char(10)+"[0] - enter manually"+char(10)+"[1] - read from file "+char(10)+"[2] - random")
-	print("[3] - specify range"+char(10)+"[4] - from clipb")
+	print("[3] - specify range (Soon)"+char(10)+"[4] - from clipb")
 	choice = user_input("||: ",0,1).to_int
 	ips = []
 	if choice == 0 then
