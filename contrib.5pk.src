@@ -1,4 +1,4 @@
-if DEBUG then print("<size=75%>loading contrib.5pk for 5hell v 4.3.6...(77.323)")
+if DEBUG then print("<size=75%>loading contrib.5pk for 5hell v 4.3.7...(77.394)")
   
  //////////////////////contrubutions start here///////////
   /// this is stuff that was not made entirely by Plu70
@@ -1047,8 +1047,8 @@ command.glosure = function(arg1, arg2=0, arg3=0, arg4=0)
     rfile = null
     file = null
     if result == null then return "null"
-    if typeof(result) != "shell" and typeof(result) != "ftpshell" and typeof(result) != "file" and typeof(result) != "computer" then return "???"
-    if typeof(result) == "computer" then
+    if typeof(result) != "shell" and typeof(result) != "ftpshell" and typeof(result) != "file" and typeof(result) != "computer" and typeof(result) != "ftpComputer" then return "???"
+    if typeof(result) == "computer" or typeof(result) == "ftpComputer" then
       file = result.File("/home")
       rfile = result.File("/")
     else if typeof(result) == "shell" or typeof(result) == "ftpshell" then
