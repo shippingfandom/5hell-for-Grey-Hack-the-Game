@@ -1,4 +1,4 @@
-if DEBUG then print("<size=75%>loading dtools.5pk v 4.3.6...(158.054)")
+if DEBUG then print("<size=75%>loading dtools.5pk v 4.3.7...(158.249)")
 
 command.cob = function(arg1,arg2,arg3=0,arg4=0)
 	cy = colorCyan 
@@ -950,8 +950,8 @@ command.tree = function(arg1, arg2=0, arg3=0, arg4=0)
 		if arg1 == "@clipc" or arg1 == "@c" then arg1 = globals.CLIP["c"]
 		if typeof(arg1) == "string" then tem = globals.get_file(arg1)
 		if typeof(arg1) == "shell" or typeof(arg1) == "ftpshell" then tem = arg1.host_computer.File("/")
-		if typeof(arg1) == "computer" then tem = arg1.File("/")
-		if typeof(arg1) == "file" then tem = arg1
+		if typeof(arg1) == "computer" or typeof(arg1) == "ftpComputer" then tem = arg1.File("/")
+		if typeof(arg1) == "file" or typeof(arg1) == "ftpFile" then tem = arg1
 	else
 		tem = localmachine.File("/")
 	end if
