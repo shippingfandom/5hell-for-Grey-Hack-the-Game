@@ -1,4 +1,4 @@
-if DEBUG then print("<size=75%>loading net.5pk v 4.3.6.1...(153.750)")
+if DEBUG then print("<size=75%>loading net.5pk v 4.3.7...(154.972)")
 
 command.target = function(arg1, arg2, arg3=0, arg4=0)
 	if arg1 == "-h" or arg1 == "help" then return "Target || Target IP || Target Port"+char(10)+"Usage: target -- return current target ip and port"+char(10)+"Usage: target ip -- returns current target ip"+char(10)+"Usage: target pt -- return current target port"+char(10)+"Usage: target [ip] -- set target ip address (ip must be a valid ip)"+char(10)+"Usage: target -p [port] -- set target port (returns target port if not supplied)"+char(10)+"Usage: target [ip] [port] -- set targt ip and port in a single command"+char(10)+char(10)+"Note: target ip and port are used by 5phinx, transmit, meta, db, probe, and others."
@@ -371,13 +371,13 @@ command.scpm = function(arg1, arg2, arg3=0, arg4=0)
 		color_shelle = colorOrange
 		she_buf = []
 		for tb in temp_buf
-            if typeof(tb) == "pshell" then 
+            if typeof(tb) == "pshell" or typeof(tb) == "ftpshell" then 
                 she_buf.push("["+colorWhite+ti+CT+"]"+active_icon+""+color_shelle+"["+checkUser(tb)+":"+typeof(tb)+"]")
                 active_icon = "<b> - </b>"
 			    ti = ti + 1
                 continue
             end if
-			if tb.host_computer.public_ip == globals.shell.host_computer.public_ip and tb.host_computer.local_ip == globals.shell.host_computer.local_ip then active_icon = colorCyan+" * "+CT
+			if p_validate(tb.host_computer,"public_ip") and tb.host_computer.public_ip == globals.shell.host_computer.public_ip and tb.host_computer.local_ip == globals.shell.host_computer.local_ip then active_icon = colorCyan+" * "+CT
 			if ti >= r_index then color_shelle = colorLightBlue
 			she_buf.push("["+colorWhite+ti+CT+"]"+active_icon+""+color_shelle+"["+checkUser(tb)+":"+typeof(tb)+"] "+CT+tb.host_computer.local_ip+" @ <b>"+tb.host_computer.public_ip+"</b>")
 			active_icon = "<b> - </b>"
@@ -446,7 +446,10 @@ command.ifconfig = function(arg1=0, arg2=0, arg3=0, arg4=0)
 			"Usage: ifconfig ["+clb+"-g"+CT+"|gateway] [opt:shell|computer] -- returns the lan ip of the active object's gateway (router)"+char(10)+char(10)+
 			"Usage: ifconfig ["+clb+"-d"+CT+"|devices] [opt:shell|computer] -- list network devices on active computer object"+char(10)+char(10)+
 			colorGreen+"Note: ifconfig> shows localmachine by default"+char(10)+
-			"-- pipe an object to configure a remote machine instead"+char(10)
+			"-- pipe an object to configure a remote machine instead"+char(10)+char(10)+
+			"NOTE: you may reverse the order of arguments:"+char(10)+
+			"--eg: <b>ifconfig -l @B 1</b> is the same as <b>ifconfig @B 1 -l"+char(10)+
+			"--ie:<b> ifconfig [flag] [shell]</b> == <b>ifconfig [shell] [flag]"
 		end if
 	print colorGreen+"- - - - - - - - - - - - - - - - - - - - - - -"
 	dat = []
@@ -3000,7 +3003,8 @@ command.infil = function(sh_ob,par=0,arg2,arg3)
 	"-- untouched npc machines"+char(10)+
 	"-- create a macro that mimics infil's behavior (perms, scpm, perms, run)"+char(10)+
 	"-- to use a different destination folder"
-	if typeof(@sh_ob) != "shell" then return "usage: infil [shell_object]"+char(10)+"-- or:<b> infil -h "
+	//if typeof(@sh_ob) != "shell" and then return "usage: infil [shell_object]"+char(10)+"-- or:<b> infil -h "
+	if not p_validate(@sh_ob,"host_computer") then return "usage: infil [shell|ftpshell]"+char(10)+"-- see:<b> infil -h"
     kit = null
     kit = command.tree("/","rkit","1","N")
     if typeof(kit) != "file" then return cr+"infil: rkit not found; aborting..." else cgo+"infil: found: "+kit.permissions+" "+kit.path
