@@ -478,7 +478,7 @@ globals._ez_clip = function( in_prompt )
         else
           if typeof(@in_prompt[e_indx+1]) == "string" then 
             if globals.BUFFER.hasIndex(in_prompt[e_indx+1].to_int) then 
-                in_prompt[e_indx+1] = globals.BUFFER[@in_prompt[e_indx+1].to_int]
+                in_prompt[e_indx+1] = globals.BUFFER[in_prompt[e_indx+1].to_int]
                 in_prompt.remove(e_indx)
                 if DEBUG then print "post non menu in_prompt"
             else 
