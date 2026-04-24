@@ -1680,10 +1680,10 @@ command.file = function(arg1, arg2=0, arg3=0, arg4=0)
 			return arg1
 		end if
 		if get_lines then
-			if file_id_info.indexOf("type: binary") == null then return str(lines) else return "file: "+arg1.path+" is binary"
+			if not arg1.is_binary then return str(lines) else return "file: "+arg1.path+" is binary"
 		end if
 		if get_chars then
-			if file_id_info.indexOf("type: binary") == null then return str(chars) else return "file: "+arg1.path+" is binary"
+			if not arg1.is_binary then return str(chars) else return "file: "+arg1.path+" is binary"
 		end if
     	print(colorGreen+"<u>==================================</u>"+CT)
 		return format_columns(file_id_info.join(char(10)))
