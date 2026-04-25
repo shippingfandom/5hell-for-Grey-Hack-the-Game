@@ -858,7 +858,7 @@ command.glosure = function(arg1, arg2=0, arg3=0, arg4=0)
   
     helpMsg = "Usage: glosure -- invoke Glosure REPL, type ;quit to quit.
   Usage: glosure [-e|exec] ""code""  -- execute Glosure code.
-  Glosure interpreter version: 237f129. For a more detailed guide read https://github.com/rocketorbit/Glosure/blob/main/Tutorial.md
+  Glosure interpreter version: c2a3089. For a more detailed guide read https://github.com/rocketorbit/Glosure/blob/main/Tutorial.md
   <b>Warning: This command is a programming language! Your error may result in crash!</b>
   
   Short reference:
