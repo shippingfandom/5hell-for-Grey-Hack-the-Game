@@ -393,6 +393,7 @@ command.glosure = function(arg1, arg2=0, arg3=0, arg4=0)
                 "params": @expr[1],
                 "body": expr[2:],
                 "env": @env,
+                "isGlosure": 0,
             }
         else if @first == "begin" then //evaluate each argument and return the last one.
             result = null
@@ -415,6 +416,7 @@ command.glosure = function(arg1, arg2=0, arg3=0, arg4=0)
                 "params": @expr[1],
                 "body": expr[2:],
                 "env": @env,
+                "isGlosure": 1,
             }
             __eval = @eval
             __env = @env
@@ -444,34 +446,23 @@ command.glosure = function(arg1, arg2=0, arg3=0, arg4=0)
                 __eval = @outer.__eval
                 __env = @outer.__env
                 lambda = @outer.lambda
-                readArgs = @outer.readArgs
                 glosure0 = function()
                     return __eval([lambda], __env)
                 end function
                 glosure1 = function(arg0)
-                    args = [@arg0]
-                    outer.readArgs(args)
-                    return __eval([lambda, @args[0]], __env)
+                    return __eval([lambda, @arg0], __env)
                 end function
                 glosure2 = function(arg0, arg1)
-                    args = [@arg0, @arg1]
-                    outer.readArgs(args)
-                    return __eval([lambda, @args[0], @args[1]], __env)
+                    return __eval([lambda, @arg0, @arg1], __env)
                 end function
                 glosure3 = function(arg0, arg1, arg2)
-                    args = [@arg0, @arg1, @arg2]
-                    outer.readArgs(args)
-                    return __eval([lambda, @args[0], @args[1], @args[2]], __env)
+                    return __eval([lambda, @arg0, @arg1, @arg2], __env)
                 end function
                 glosure4 = function(arg0, arg1, arg2, arg3)
-                    args = [@arg0, @arg1, @arg2, @arg3]
-                    outer.readArgs(args)
-                    return __eval([lambda, @args[0], @args[1], @args[2], @args[3]], __env)
+                    return __eval([lambda, @arg0, @arg1, @arg2, @arg3], __env)
                 end function
                 glosure5 = function(arg0, arg1, arg2, arg3, arg4)
-                    args = [@arg0, @arg1, @arg2, @arg3, @arg4]
-                    outer.readArgs(args)
-                    return __eval([lambda, @args[0], @args[1], @args[2], @args[3], @args[4]], __env)
+                    return __eval([lambda, @arg0, @arg1, @arg2, @arg3, @arg4], __env)
                 end function
                 if len(lambda.params) == 0 then return @glosure0
                 if len(lambda.params) == 1 then return @glosure1
@@ -550,7 +541,11 @@ command.glosure = function(arg1, arg2=0, arg3=0, arg4=0)
             if @func isa map and hasIndex(func, "classID") and func.classID == "lambda" then
                 if len(args) > len(func.params) then return Error("Glosure: Runtime Error: calling a lambda takes at most " + len(func.params) + " params but received " + len(args) + " arguments.")
                 for arg in args
-                    evaluatedArgs.push(eval(@arg, env))
+                    if func.isGlosure then
+                        evaluatedArgs.push(@arg)
+                    else
+                        evaluatedArgs.push(eval(@arg, env))
+                    end if
                 end for
                 while len(evaluatedArgs) < len(func.params)
                     evaluatedArgs.push(null) //append null for not enough arguments
