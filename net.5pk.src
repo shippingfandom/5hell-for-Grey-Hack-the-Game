@@ -410,7 +410,7 @@ command.iwlist = function(arg1, arg2=0, arg3=0, arg4=0)
 	return_list = false
 	if arg1 == "-a" or arg1 == "air" then return command.air("false")
 	if agr2 == "-l" then return_list = true
-	nets = localmachine.wifi_networks("wlan0").split(char(10))
+	nets = localmachine.wifi_networks("wlan0")
 	c = 0
 	if arg1 == "-b" or arg1 == "-e" then 
 		if arg1 == "-e" then c = 2
